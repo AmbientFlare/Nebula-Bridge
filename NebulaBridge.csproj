@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <NebulaBridgeTargetFramework Condition="'$(NebulaBridgeTargetFramework)' == ''">net9.0</NebulaBridgeTargetFramework>
+    <TargetFramework>$(NebulaBridgeTargetFramework)</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>NebulaBridge</AssemblyName>
+    <Version>0.4.1.1</Version>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <JellyfinVersion Condition="'$(JellyfinVersion)' == ''">10.11.11</JellyfinVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="NebulaBridge.Tests" />
+    <PackageReference Include="Jellyfin.Model" Version="$(JellyfinVersion)" />
+    <PackageReference Include="Jellyfin.Controller" Version="$(JellyfinVersion)" />
+    <PackageReference Include="Jellyfin.Common" Version="$(JellyfinVersion)" />
+    <PackageReference Include="AngleSharp" Version="1.7.1" />
+    <PackageReference Include="AngleSharp.XPath" Version="2.0.6" />
+    <PackageReference Include="JsonSchema.Net" Version="9.4.0" />
+    <PackageReference Include="YamlDotNet" Version="18.1.0" />
+    <PackageReference Include="MonoTorrent" Version="3.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.7.0" />
+    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="9.0.0" PrivateAssets="all" />
+    <PackageReference Include="Net.Codecrete.QrCodeGenerator" Version="3.1.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="NebulaBridge.Tests\**\*.cs" />
+    <!-- Experimental provider projects compile independently and must not enter the plugin glob. -->
+    <Compile Remove="OxImplementationCandidate\**\*.cs" />
+    <EmbeddedResource Include="Config\config.html" />
+    <EmbeddedResource Include="Config\config.js" />
+    <EmbeddedResource Include="Assets\nebula-library-cover.png" />
+    <EmbeddedResource Include="indexers\schema.json" />
+    <!-- Embed all frontend assets so they are delivered with the plugin -->
+    <EmbeddedResource Include="Frontend\**\*" />
+  </ItemGroup>
+  <Target Name="CleanupJellyfinDlls" AfterTargets="Build">
+    <ItemGroup>
+      <AllDlls Include="$(OutDir)*.dll" />
+      <FilesToKeep
+        Include="&#xA;        $(OutDir)NebulaBridge.dll;&#xA;        $(OutDir)JellyfinLoaderStub*.dll;&#xA;        $(OutDir)0Harmony.dll;&#xA;        $(OutDir)MonoTorrent*.dll;&#xA;        $(OutDir)Mono.Nat.dll;&#xA;        $(OutDir)ReusableTasks.dll;&#xA;        $(OutDir)AngleSharp.dll;&#xA;        $(OutDir)AngleSharp.XPath.dll;&#xA;        $(OutDir)JsonSchema.Net.dll;&#xA;        $(OutDir)JsonPointer.Net.dll;&#xA;        $(OutDir)Json.More.dll;&#xA;        $(OutDir)Humanizer.dll;&#xA;        $(OutDir)YamlDotNet.dll;&#xA;        $(OutDir)QrCodeGenerator.dll"
+      />
+      <FilesToDelete Include="@(AllDlls)" Exclude="@(FilesToKeep)" />
+    </ItemGroup>
+    <Delete Files="@(FilesToDelete)" />
+  </Target>
+</Project>

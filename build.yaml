@@ -1,0 +1,37 @@
+---
+name: "Nebula Bridge"
+guid: "e9d7c793-aee0-49b6-82c1-8ad583453663"
+version: "0.4.1.1"
+targetAbi: "10.11.11.0"
+framework: "net9.0"
+owner: "Nebula Bridge"
+artifacts:
+  - "NebulaBridge.dll"
+  - "AngleSharp.dll"
+  - "AngleSharp.XPath.dll"
+  - "JsonSchema.Net.dll"
+  - "JsonPointer.Net.dll"
+  - "Json.More.dll"
+  - "Humanizer.dll"
+  - "Mono.Nat.dll"
+  - "MonoTorrent.BEncoding.dll"
+  - "MonoTorrent.Client.dll"
+  - "MonoTorrent.Connections.dll"
+  - "MonoTorrent.Dht.dll"
+  - "MonoTorrent.dll"
+  - "MonoTorrent.Factories.dll"
+  - "MonoTorrent.Messages.dll"
+  - "MonoTorrent.PiecePicking.dll"
+  - "MonoTorrent.PieceWriter.dll"
+  - "MonoTorrent.PortForwarding.dll"
+  - "MonoTorrent.Trackers.dll"
+  - "ReusableTasks.dll"
+  - "QrCodeGenerator.dll"
+  - "YamlDotNet.dll"
+overview: "Native discovery and on-demand media bridge for Jellyfin."
+description: >
+  Native media discovery, Trakt catalogs, and on-demand Jellyfin playback.
+category: "General"
+changelog: >
+  First public release candidate: Trakt/TMDB virtual libraries, native indexer discovery,
+  cached-only TorBox playback, per-user access controls.

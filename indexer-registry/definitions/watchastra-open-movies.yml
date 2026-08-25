@@ -1,0 +1,22 @@
+id: watchastra-open-movies
+name: WatchAstra Open Movies
+description: Curated, openly licensed Blender Foundation films used for lawful playback and resolver validation.
+type: public
+requestDelaySeconds: 0
+baseUrls:
+  - https://indexers.watchastra.com/
+search:
+  path: open-movies/search
+  query:
+    q: "{{query}}"
+  rows: .result
+  fields:
+    title:
+      selector: .title
+    magnet:
+      selector: .magnet
+      attribute: href
+    size:
+      selector: .size
+    category:
+      selector: .category

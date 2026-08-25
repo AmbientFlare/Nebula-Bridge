@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nebula Bridge</title>
+</head>
+<body>
+  <div data-role="page" id="nebulabridgeConfigurationPage" class="page type-interior pluginConfigurationPage" data-require="emby-button,emby-checkbox" data-controller="__plugin/nebulabridge-config-js">
+    <style>
+      #nebulabridgeConfigurationPage .tab-button {
+        appearance: none;
+        background: transparent !important;
+        border: 0;
+        border-radius: 0;
+        color: inherit !important;
+        cursor: pointer;
+        margin: 0;
+        min-height: 2.8em;
+        padding: .75em .9em;
+      }
+      #nebulabridgeConfigurationPage .tab-button:hover,
+      #nebulabridgeConfigurationPage .tab-button:focus-visible {
+        background: rgba(255, 255, 255, .08) !important;
+        outline: none;
+      }
+    </style>
+    <div data-role="content"><div class="content-primary">
+      <form id="nebulabridgeForm">
+        <div class="sectionTitleContainer"><h2 class="sectionTitle">Nebula Bridge Configuration</h2></div>
+        <div class="fieldDescription" style="margin-bottom:1.25em">Native TMDB metadata, Trakt catalogs, public indexers, and cached on-demand playback. Changes on this page apply only to Nebula Bridge.</div>
+
+        <div style="display:flex;gap:1.5em;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,.15);margin-bottom:2em">
+          <button is="emby-button" type="button" class="emby-button tab-button active" data-tab="general">General</button>
+          <button is="emby-button" type="button" class="emby-button tab-button" data-tab="catalogs">Catalogs</button>
+          <button is="emby-button" type="button" class="emby-button tab-button" data-tab="trakt">Trakt</button>
+          <button is="emby-button" type="button" class="emby-button tab-button" data-tab="native-sources">Native Sources</button>
+          <button is="emby-button" type="button" class="emby-button tab-button" data-tab="user-access">User Access</button>
+          <button is="emby-button" type="button" class="emby-button tab-button" data-tab="advanced">Advanced</button>
+        </div>
+
+        <section id="tab-general" class="tab-content">
+          <h3 class="sectionTitle">Library paths</h3>
+          <div class="inputContainer">
+            <label class="inputLabel" for="txtMoviePath">Movies path</label>
+            <input class="emby-input" id="txtMoviePath" type="text">
+            <div class="fieldDescription">Legacy discovery path used for search-result quarantine. Promoted and catalog content now lives in stable Nebula Bridge-managed Jellyfin libraries.</div>
+          </div>
+          <div class="inputContainer">
+            <label class="inputLabel" for="txtSeriesPath">Series path</label>
+            <input class="emby-input" id="txtSeriesPath" type="text">
+            <div class="fieldDescription">Legacy series discovery path. Opening a remote series populates its season tree without resolving streams.</div>
+          </div>
+          <div class="checkboxContainer checkboxContainer-withDescription"><label>
+            <input is="emby-checkbox" id="chkDisableSearch" type="checkbox"><span>Local-library search only for everyone</span>
+          </label><div class="fieldDescription">Disables remote TMDB discovery server-wide. User Access can apply the same restriction to selected accounts.</div></div>
+          <div class="checkboxContainer checkboxContainer-withDescription"><label>
+            <input is="emby-checkbox" id="chkEnableTraktCatalogs" type="checkbox"><span>Enable native Trakt integration</span>
+          </label><div class="fieldDescription">Makes public Trakt catalogs available. Personal lists and Next Episodes require a connected account.</div></div>
+        </section>
+
+        <section id="tab-catalogs" class="tab-content" style="display:none">
+          <h3 class="sectionTitle">Managed catalog libraries</h3>
+          <div class="fieldDescription" style="margin-bottom:1em">Each enabled list refreshes into a stable Nebula Bridge library. “Home row” is a separate client preference exposed for Astra; disabling it does not remove the library from Jellyfin’s Libraries screen.</div>
+          <div class="inputContainer" style="display:flex;gap:.75em">
+            <input class="emby-input" id="txtCatalogSearch" type="search" placeholder="Filter catalogs" aria-label="Filter catalogs">
+            <button is="emby-button" class="raised emby-button" id="btnRefreshCatalogs" type="button">Refresh list</button>
+          </div>
+          <div id="catalogsList" style="overflow:auto"></div>
+          <div class="fieldDescription" style="margin-top:1em">Schedule: Next Episodes at 1 AM and 1 PM; Trending and Box Office daily; Popular, Anticipated, and curated lists weekly. Times use the Jellyfin server’s local clock.</div>
+          <button is="emby-button" class="raised emby-button" id="btnImportAll" type="button">Refresh all enabled now</button>
+        </section>
+
+        <section id="tab-trakt" class="tab-content" style="display:none">
+          <h3 class="sectionTitle">Trakt account</h3>
+          <div id="traktOfficialStatus" class="fieldDescription">Checking Jellyfin’s official Trakt plugin…</div>
+          <div style="display:flex;gap:.75em;flex-wrap:wrap;margin:1em 0">
+            <button is="emby-button" class="raised emby-button" id="btnInstallJellyfinTrakt" type="button" style="display:none">Install official Trakt plugin and restart</button>
+            <button is="emby-button" class="raised emby-button" id="btnOpenJellyfinTrakt" type="button" style="display:none">Open Jellyfin Trakt authorization</button>
+            <button is="emby-button" class="raised emby-button" id="btnTraktConnect" type="button">Connect directly</button>
+            <button is="emby-button" class="emby-button" id="btnTraktDisconnect" type="button">Disconnect direct account</button>
+          </div>
+          <div id="traktConnectionStatus" class="fieldDescription">Not connected.</div>
+          <div id="traktActivationPanel" style="display:none;padding:1em;text-align:center">
+            <a id="traktActivationLink" href="https://trakt.tv/activate" target="_blank" rel="noopener noreferrer"><img id="traktQrCode" alt="Trakt activation QR code" style="width:min(240px,60vw)"></a>
+            <div>Open <a id="traktVerificationUrl" href="https://trakt.tv/activate" target="_blank" rel="noopener noreferrer">trakt.tv/activate</a> and enter:</div>
+            <div id="traktUserCode" style="font-size:2.3em;font-weight:bold;letter-spacing:.15em"></div>
+            <div class="fieldDescription">Activation is polled automatically; the code remains visible if QR activation is unavailable.</div>
+          </div>
+          <details style="margin-top:1.5em"><summary>Advanced direct Trakt application setup</summary>
+            <div class="fieldDescription" style="margin:.75em 0">Use these distributor credentials only when Jellyfin’s official Trakt plugin has no authorized account.</div>
+            <div class="inputContainer">
+              <a href="https://trakt.tv/oauth/applications" target="_blank" rel="noopener noreferrer">Open Trakt application settings</a>
+              <label class="inputLabel" for="txtTraktClientId">Trakt client ID</label>
+              <input class="emby-input" id="txtTraktClientId" type="password" autocomplete="new-password">
+              <div class="fieldDescription">Write-only. The browser receives only whether a value exists. Environment variable: <code>NEBULA_BRIDGE_TRAKT_CLIENT_ID</code>.</div>
+              <div class="secretActions" data-provider="trakt-client-id"></div>
+            </div>
+            <div class="inputContainer">
+              <a href="https://trakt.tv/oauth/applications" target="_blank" rel="noopener noreferrer">Open Trakt application settings</a>
+              <label class="inputLabel" for="txtTraktClientSecret">Trakt client secret</label>
+              <input class="emby-input" id="txtTraktClientSecret" type="password" autocomplete="new-password">
+              <div class="fieldDescription">Write-only. Environment variable: <code>NEBULA_BRIDGE_TRAKT_CLIENT_SECRET</code>.</div>
+              <div class="secretActions" data-provider="trakt-client-secret"></div>
+            </div>
+            <div class="inputContainer">
+              <label class="inputLabel" for="txtTraktRedirectUri">Registered redirect URI</label>
+              <input class="emby-input" id="txtTraktRedirectUri" type="text" placeholder="urn:ietf:wg:oauth:2.0:oob">
+              <div class="fieldDescription">Must match the application registration exactly. This is not a secret.</div>
+            </div>
+          </details>
+        </section>
+
+        <section id="tab-native-sources" class="tab-content" style="display:none">
+          <h3 class="sectionTitle">Native sources</h3>
+          <div class="checkboxContainer checkboxContainer-withDescription"><label><input is="emby-checkbox" id="chkEnableNativeScraper" type="checkbox"><span>Enable native YAML scraper</span></label><div class="fieldDescription">Allows enabled public Cardigann definitions to search their declared hosts. Disabled by default.</div></div>
+          <div class="checkboxContainer checkboxContainer-withDescription"><label><input is="emby-checkbox" id="chkEnableNativeAggregation" type="checkbox"><span>Enable result aggregation</span></label><div class="fieldDescription">Normalizes, deduplicates, and ranks results from enabled indexers.</div></div>
+          <div class="checkboxContainer checkboxContainer-withDescription"><label><input is="emby-checkbox" id="chkEnableTorBoxResolver" type="checkbox"><span>Enable cached TorBox resolution</span></label><div class="fieldDescription">Only already-cached torrents are offered; Nebula Bridge never starts an uncached download.</div></div>
+          <div class="inputContainer">
+            <a href="https://torbox.app" target="_blank" rel="noopener noreferrer">Open TorBox</a>
+            <label class="inputLabel" for="txtTorBoxApiToken">TorBox API token</label>
+            <input class="emby-input" id="txtTorBoxApiToken" type="password" autocomplete="new-password">
+            <div class="fieldDescription">Write-only. Environment variable <code>NEBULA_BRIDGE_TORBOX_API_TOKEN</code> takes precedence.</div>
+            <div class="secretActions" data-provider="torbox"></div>
+          </div>
+          <div class="fieldDescription" style="margin-bottom:1em"><strong>Affiliate disclosure:</strong> provider links on this administrator page may later be affiliate links that support the project. Provider links are never shown in Astra.</div>
+          <div class="inputContainer"><label class="inputLabel" for="txtNativeResolvedStreamLimit">Maximum native streams</label><input class="emby-input" id="txtNativeResolvedStreamLimit" type="number" min="1" max="20"><div class="fieldDescription">Maximum direct and cached candidates per item, from 1 through 20.</div></div>
+          <h3 class="sectionTitle">Signed Cardigann catalog</h3>
+          <div class="checkboxContainer checkboxContainer-withDescription"><label><input is="emby-checkbox" id="chkEnableRemoteIndexerCatalog" type="checkbox"><span>Update signed indexer definitions daily</span></label><div class="fieldDescription">Transactional updates retain the last-known-good set if validation fails.</div></div>
+          <div class="inputContainer"><label class="inputLabel" for="txtIndexerCatalogManifestUrl">Manifest URL</label><input class="emby-input" id="txtIndexerCatalogManifestUrl" type="url"><div class="fieldDescription">HTTPS is required except for loopback development.</div></div>
+          <details><summary>Manifest trust settings</summary><div class="inputContainer"><label class="inputLabel" for="txtIndexerCatalogPublicKey">ECDSA public key</label><textarea class="emby-textarea" id="txtIndexerCatalogPublicKey" rows="3"></textarea><div class="fieldDescription">Base64 DER P-256 public key used to verify exact manifest bytes.</div></div></details>
+          <button is="emby-button" class="raised emby-button" id="btnUpdateIndexers" type="button">Update indexers</button>
+          <div id="indexerDefinitionStatus" class="fieldDescription" style="margin:.75em 0">No definition status loaded.</div>
+          <div id="nativeIndexerList"></div>
+          <div class="inputContainer"><label class="inputLabel" for="txtNativeTestQuery">Test query</label><input class="emby-input" id="txtNativeTestQuery" value="ubuntu"><div class="fieldDescription">Runs against all enabled definitions; individual source failures remain isolated.</div></div>
+          <button is="emby-button" class="raised emby-button" id="btnNativeTest" type="button">Run test query</button>
+          <pre id="nativeTestOutput" style="white-space:pre-wrap;max-height:24em;overflow:auto"></pre>
+        </section>
+
+        <section id="tab-user-access" class="tab-content" style="display:none">
+          <h3 class="sectionTitle">Nebula Bridge user access</h3>
+          <div class="fieldDescription" style="margin-bottom:1em">Rows are rebuilt from Jellyfin users whenever this page opens. “No Nebula Bridge” hides all bridge-managed libraries through Jellyfin’s native library policy and blocks remote discovery. “Local search only” blocks remote discovery but preserves authorized bridge libraries.</div>
+          <div id="userAccessGrid" style="overflow:auto"></div>
+          <button is="emby-button" class="raised emby-button" id="btnSaveUserAccess" type="button">Save user access</button>
+        </section>
+
+        <section id="tab-advanced" class="tab-content" style="display:none">
+          <h3 class="sectionTitle">Advanced behavior</h3>
+          <div class="checkboxContainer checkboxContainer-withDescription"><label><input is="emby-checkbox" id="chkEnableMixed" type="checkbox"><span>Add remote streams to locally scanned media</span></label><div class="fieldDescription">Useful when a local file is missing or unsuitable. Leave off to keep local libraries strictly local; TorBox offload is mainly useful on shared servers.</div></div>
+          <div class="checkboxContainer checkboxContainer-withDescription"><label><input is="emby-checkbox" id="chkExtendLocalSeriesTrees" type="checkbox"><span>Extend local series with virtual episodes</span></label><div class="fieldDescription">Creates missing season and episode rows for locally scanned shows. Streams remain lazy until playback.</div></div>
+          <div class="checkboxContainer checkboxContainer-withDescription"><label><input is="emby-checkbox" id="chkEnableJavaScriptInjection" type="checkbox"><span>Enable Jellyfin web customization</span></label><div class="fieldDescription">Adds the legacy local-search control when Jellyfin JavaScript Injector is installed.</div></div>
+          <div class="checkboxContainer checkboxContainer-withDescription"><label><input is="emby-checkbox" id="chkLazyImages" type="checkbox"><span>Load images lazily</span></label><div class="fieldDescription">Defers image downloads until first use to reduce storage and initial import work.</div></div>
+          <div class="checkboxContainer checkboxContainer-withDescription"><label><input is="emby-checkbox" id="chkFilterUnreleased" type="checkbox"><span>Hide unreleased items</span></label><div class="fieldDescription">Filters remote results whose known release date is beyond the configured buffer.</div></div>
+          <div class="inputContainer"><label class="inputLabel" for="txtBufferDays">Release buffer days</label><input class="emby-input" id="txtBufferDays" type="number"><div class="fieldDescription">Number of days after release to continue treating an item as unavailable.</div></div>
+          <div class="inputContainer"><label class="inputLabel" for="txtStreamTTL">Stream cache TTL, seconds</label><input class="emby-input" id="txtStreamTTL" type="number"><div class="fieldDescription">How long prepared stream rows are reused before resolution is refreshed.</div></div>
+          <div class="inputContainer"><label class="inputLabel" for="txtFFmpegAnalyzeDuration">FFmpeg analyzeduration</label><input class="emby-input" id="txtFFmpegAnalyzeDuration" type="text"><div class="fieldDescription">Probe analysis duration; default <code>5M</code>. Requires a Jellyfin restart after changes.</div></div>
+          <div class="inputContainer"><label class="inputLabel" for="txtFFmpegProbeSize">FFmpeg probesize</label><input class="emby-input" id="txtFFmpegProbeSize" type="text"><div class="fieldDescription">Maximum probe bytes; default <code>40M</code>. Requires a Jellyfin restart after changes.</div></div>
+        </section>
+
+        <button id="btnSave" is="emby-button" type="submit" class="raised button-submit block emby-button" style="margin-top:2em">Save configuration</button>
+      </form>
+    </div></div>
+  </div>
+
+</body>
+</html>

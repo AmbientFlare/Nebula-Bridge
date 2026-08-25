@@ -1,0 +1,26 @@
+bin/
+obj/
+.vs/
+.idea/
+artifacts
+Release
+*.zip
+dist/
+__pycache__/
+*.py[cod]
+*.sln.DotSettings.user
+indexer-registry/.env
+indexer-registry/data/
+indexer-registry/secrets/
+
+# --- Private working notes & AI-session artifacts (never publish) ---
+REVIEW_NOTES.md
+docs/IMPLEMENTATION_STATUS.md
+docs/handoffs/
+nebula-fix-*.md
+OxImplementationCandidate/
+AGENTS.md
+CLAUDE.md
+.codex*
+*.log
+.pytest_cache/
