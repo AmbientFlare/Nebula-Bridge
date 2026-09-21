@@ -1,0 +1,40 @@
+id: linuxtracker
+name: LinuxTracker
+description: Public Linux distribution image index used as a lawful native scraper example.
+type: public
+requestDelaySeconds: 2
+baseUrls:
+  - https://linuxtracker.org/
+search:
+  path: index.php
+  query:
+    page: torrents
+    search: "{{query}}"
+    category: "0"
+    active: "1"
+  rows: 'table.lista[width="100%"] > tbody > tr'
+  fields:
+    title:
+      selector: 'a[href*="page=torrent-details"][title]'
+      attribute: title
+    details:
+      selector: 'a[href*="page=torrent-details"][title]'
+      attribute: href
+    infohash:
+      selector: 'a[href*="page=torrent-details"][title]'
+      attribute: href
+      transforms:
+        - name: querystring
+          arg: id
+    category:
+      selector: 'a[href*="page=torrents&category="]'
+      attribute: href
+      transforms:
+        - name: querystring
+          arg: category
+    size:
+      selector: 'td:nth-child(2) > table > tbody > tr:nth-child(2) > td'
+    seeders:
+      selector: 'td:nth-child(2) > table > tbody > tr:nth-child(3) > td'
+      transforms:
+        - name: integer

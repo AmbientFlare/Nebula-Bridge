@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nebula Bridge</title>
+</head>
+<body>
+  <div data-role="page" id="nebulabridgeConfigurationPage" class="page type-interior pluginConfigurationPage" data-require="emby-button,emby-checkbox" data-controller="__plugin/nebulabridge-config-js">
+    <style>
+      #nebulabridgeConfigurationPage .tab-button {
+        appearance: none;
+        background: transparent !important;
+        border: 0;
+        border-radius: 0;
+        color: inherit !important;
+        cursor: pointer;
+        margin: 0;
+        min-height: 2.8em;
+        padding: .75em .9em;
+      }
+      #nebulabridgeConfigurationPage .tab-button:hover,
+      #nebulabridgeConfigurationPage .tab-button:focus-visible {
+        background: rgba(255, 255, 255, .08) !important;
+        outline: none;
+      }
+      @media (min-width: 50em) {
+        #nebulabridgeConfigurationPage #nebulabridgeForm {
+          max-width: none;
+        }
+      }
+      #nebulabridgeConfigurationPage #acquisitionJobs {
+        display: block;
+        max-width: 100%;
+        overflow-x: auto;
+        width: 100%;
+        -webkit-overflow-scrolling: touch;
+      }
+      #nebulabridgeConfigurationPage #acquisitionJobs .acquisition-table {
+        min-width: 70rem;
+        table-layout: auto;
+        width: 100% !important;
+      }
+      #nebulabridgeConfigurationPage #acquisitionJobs th,
+      #nebulabridgeConfigurationPage #acquisitionJobs td {
+        padding-left: .5em;
+        padding-right: .5em;
+        vertical-align: top;
+      }
+      #nebulabridgeConfigurationPage #acquisitionJobs th:first-child,
+      #nebulabridgeConfigurationPage #acquisitionJobs td:first-child {
+        min-width: 16rem;
+        white-space: normal;
+      }
+      #nebulabridgeConfigurationPage .acquisition-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .4em;
+        min-width: 18rem;
+      }
+      #nebulabridgeConfigurationPage .acquisition-actions .emby-button {
+        flex: 0 0 auto;
+        margin: 0;
+        min-width: 7.5em;
+        padding-left: .7em;
+        padding-right: .7em;
+        white-space: nowrap;
+      }
+    </style>
+    <div data-role="content"><div class="content-primary">
+      <form id="nebulabridgeForm">
+        <div class="sectionTitleContainer"><h2 class="sectionTitle">Nebula Bridge Configuration</h2></div>
+        <div class="fieldDescription" style="margin-bottom:1.25em">Native TMDB metadata, Trakt catalogs, public indexers, and cached on-demand playback. Changes on this page apply only to Nebula Bridge.</div>
+
+        <div style="display:flex;gap:1.5em;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,.15);margin-bottom:2em">
+          <button is="emby-button" type="button" class="emby-button tab-button active" data-tab="general">General</button>
+          <button is="emby-button" type="button" class="emby-button tab-button" data-tab="catalogs">Catalogs</button>
+          <button is="emby-button" type="button" class="emby-button tab-button" data-tab="trakt">Trakt</button>
+          <button is="emby-button" type="button" class="emby-button tab-button" data-tab="native-sources">Native Sources</button>
+          <button is="emby-button" type="button" class="emby-button tab-button" data-tab="acquisition">Acquisition</button>
+          <button is="emby-button" type="button" class="emby-button tab-button" data-tab="kept-media">Kept Media</button>
+          <button is="emby-button" type="button" class="emby-button tab-button" data-tab="user-access">User Access</button>
+          <button is="emby-button" type="button" class="emby-button tab-button" data-tab="advanced">Advanced</button>
+        </div>
+
+        <section id="tab-general" class="tab-content">
+          <h3 class="sectionTitle">Nebula virtual-library paths</h3>
+          <div class="inputContainer">
+            <label class="inputLabel" for="txtMoviePath">Virtual movie path</label>
+            <input class="emby-input" id="txtMoviePath" type="text">
+            <div class="fieldDescription">Internal filesystem path used by Nebula's virtual movie library. Do not point this at an ordinary local media library.</div>
+          </div>
+          <div class="inputContainer">
+            <label class="inputLabel" for="txtSeriesPath">Virtual series path</label>
+            <input class="emby-input" id="txtSeriesPath" type="text">
+            <div class="fieldDescription">Internal filesystem path used by Nebula's virtual series library. Do not point this at an ordinary local media library.</div>
+          </div>
+          <div class="checkboxContainer checkboxContainer-withDescription"><label>
+            <input is="emby-checkbox" id="chkDisableSearch" type="checkbox"><span>Local-library search only for everyone</span>
+          </label><div class="fieldDescription">Disables remote TMDB discovery server-wide. User Access can apply the same restriction to selected accounts.</div></div>
+          <div class="checkboxContainer checkboxContainer-withDescription"><label>
+            <input is="emby-checkbox" id="chkEnableTraktCatalogs" type="checkbox"><span>Enable native Trakt integration</span>
+          </label><div class="fieldDescription">Makes public Trakt catalogs available. Personal lists and Next Episodes require a connected account.</div></div>
+        </section>
+
+        <section id="tab-acquisition" class="tab-content" style="display:none">
+          <h3 class="sectionTitle">Local playback cache and retention</h3>
+          <div class="checkboxContainer checkboxContainer-withDescription"><label><input is="emby-checkbox" id="chkEnableLocalAcquisition" type="checkbox"><span>Enable progressive playback caching and local acquisition</span></label><div class="fieldDescription">Off by default. Remote playback continues normally while off, but no new cache jobs or staging files are created and Keep actions are unavailable. Existing retained and imported state is preserved.</div></div>
+          <div class="inputContainer"><label class="inputLabel" for="txtMovieImportPath">Permanent movie import path</label><input class="emby-input" id="txtMovieImportPath" type="text"><div class="fieldDescription">Root of an ordinary Jellyfin Movies library. Retained movies are finalized here and become normal local media.</div></div>
+          <div class="inputContainer"><label class="inputLabel" for="txtSeriesImportPath">Permanent TV import path</label><input class="emby-input" id="txtSeriesImportPath" type="text"><div class="fieldDescription">Root of an ordinary Jellyfin TV Shows library. Retained episodes are finalized here and become normal local media.</div></div>
+          <div class="inputContainer"><label class="inputLabel" for="txtPlaybackCacheRetentionDays">Temporary cache lifetime, days</label><input class="emby-input" id="txtPlaybackCacheRetentionDays" type="number" min="1" max="365"><div class="fieldDescription">How long recently used temporary remote-playback bytes remain available for resume and reuse. Retained items and series are not purged.</div></div>
+          <div class="inputContainer"><label class="inputLabel" for="txtPlaybackCacheMinimumFreeSpaceMb">Minimum free space, MiB</label><input class="emby-input" id="txtPlaybackCacheMinimumFreeSpaceMb" type="number" min="256" max="1048576"><div class="fieldDescription">Cache writes stop before available storage falls below this floor. Remote playback continues without caching. Staging is kept in Jellyfin's data directory.</div></div>
+          <h3 class="sectionTitle">Active cache jobs</h3>
+          <div id="acquisitionStatus" class="fieldDescription" style="margin-bottom:.75em">Open this tab to load active temporary or retained work. Imported local media appears in Kept Media.</div>
+          <div id="acquisitionJobs" style="overflow:auto"></div>
+          <button is="emby-button" class="raised emby-button" id="btnRefreshAcquisition" type="button">Refresh jobs</button>
+        </section>
+
+        <section id="tab-kept-media" class="tab-content" style="display:none">
+          <h3 class="sectionTitle">Kept local media</h3>
+          <div id="keptMediaStatus" class="fieldDescription" style="margin-bottom:1em">Open this tab to load imported local media and Keep Series policies.</div>
+          <h4 class="sectionTitle">Keep Series policies</h4>
+          <div id="keptSeriesPolicies" style="overflow:auto"></div>
+          <h4 class="sectionTitle">Recent imported media</h4>
+          <div class="fieldDescription" style="margin-bottom:.75em">Imported files are ordinary Jellyfin local media. They are intentionally not purgeable from the cache review; manage the files through their normal Movies or TV Shows library.</div>
+          <div id="keptMediaItems" style="overflow:auto"></div>
+          <button is="emby-button" class="raised emby-button" id="btnRefreshKeptMedia" type="button">Refresh kept media</button>
+        </section>
+
+        <section id="tab-catalogs" class="tab-content" style="display:none">
+          <h3 class="sectionTitle">Catalog sources</h3>
+          <div class="fieldDescription" style="margin-bottom:1em">Nebula Bridge keeps four libraries: <strong>Movies</strong>, <strong>Shows</strong>, <strong>Trakt Next Episodes</strong>, and <strong>Search Results</strong>. Every enabled source below feeds Movies or Shows and is merged with the other sources of its type, so a title that appears in several feeds shows up once. Tick “Own folder” only for a personal list (watchlist, collection, history…) that should get a library of its own. “Home row” is a separate client preference exposed for Astra.</div>
+          <div class="inputContainer" style="display:flex;gap:.75em">
+            <input class="emby-input" id="txtCatalogSearch" type="search" placeholder="Filter catalogs" aria-label="Filter catalogs">
+            <button is="emby-button" class="raised emby-button" id="btnRefreshCatalogs" type="button">Refresh list</button>
+          </div>
+          <div id="catalogsList" style="overflow:auto"></div>
+          <div class="fieldDescription" style="margin-top:1em">Schedule: Next Episodes at 1 AM and 1 PM; Trending and Box Office daily; Popular, Anticipated, and curated lists weekly. Times use the Jellyfin server’s local clock.</div>
+          <button is="emby-button" class="raised emby-button" id="btnImportAll" type="button">Refresh all enabled now</button>
+        </section>
+
+        <section id="tab-trakt" class="tab-content" style="display:none">
+          <h3 class="sectionTitle">Trakt account</h3>
+          <div id="traktOfficialStatus" class="fieldDescription">Checking Jellyfin’s official Trakt plugin…</div>
+          <div style="display:flex;gap:.75em;flex-wrap:wrap;margin:1em 0">
+            <button is="emby-button" class="raised emby-button" id="btnInstallJellyfinTrakt" type="button" style="display:none">Install official Trakt plugin and restart</button>
+            <button is="emby-button" class="raised emby-button" id="btnOpenJellyfinTrakt" type="button" style="display:none">Open Jellyfin Trakt authorization</button>
+            <button is="emby-button" class="raised emby-button" id="btnTraktConnect" type="button">Connect directly</button>
+            <button is="emby-button" class="emby-button" id="btnTraktDisconnect" type="button">Disconnect direct account</button>
+          </div>
+          <div id="traktConnectionStatus" class="fieldDescription">Not connected.</div>
+          <div id="traktActivationPanel" style="display:none;padding:1em;text-align:center">
+            <a id="traktActivationLink" href="https://trakt.tv/activate" target="_blank" rel="noopener noreferrer"><img id="traktQrCode" alt="Trakt activation QR code" style="width:min(240px,60vw)"></a>
+            <div>Open <a id="traktVerificationUrl" href="https://trakt.tv/activate" target="_blank" rel="noopener noreferrer">trakt.tv/activate</a> and enter:</div>
+            <div id="traktUserCode" style="font-size:2.3em;font-weight:bold;letter-spacing:.15em"></div>
+            <div class="fieldDescription">Activation is polled automatically; the code remains visible if QR activation is unavailable.</div>
+          </div>
+          <details style="margin-top:1.5em"><summary>Advanced direct Trakt application setup</summary>
+            <div class="fieldDescription" style="margin:.75em 0">Use these distributor credentials only when Jellyfin’s official Trakt plugin has no authorized account.</div>
+            <div class="inputContainer">
+              <a href="https://trakt.tv/oauth/applications" target="_blank" rel="noopener noreferrer">Open Trakt application settings</a>
+              <label class="inputLabel" for="txtTraktClientId">Trakt client ID</label>
+              <input class="emby-input" id="txtTraktClientId" type="password" autocomplete="new-password">
+              <div class="fieldDescription">Write-only. The browser receives only whether a value exists. Environment variable: <code>NEBULA_BRIDGE_TRAKT_CLIENT_ID</code>.</div>
+              <div class="secretActions" data-provider="trakt-client-id"></div>
+            </div>
+            <div class="inputContainer">
+              <a href="https://trakt.tv/oauth/applications" target="_blank" rel="noopener noreferrer">Open Trakt application settings</a>
+              <label class="inputLabel" for="txtTraktClientSecret">Trakt client secret</label>
+              <input class="emby-input" id="txtTraktClientSecret" type="password" autocomplete="new-password">
+              <div class="fieldDescription">Write-only. Environment variable: <code>NEBULA_BRIDGE_TRAKT_CLIENT_SECRET</code>.</div>
+              <div class="secretActions" data-provider="trakt-client-secret"></div>
+            </div>
+            <div class="inputContainer">
+              <label class="inputLabel" for="txtTraktRedirectUri">Registered redirect URI</label>
+              <input class="emby-input" id="txtTraktRedirectUri" type="text" placeholder="urn:ietf:wg:oauth:2.0:oob">
+              <div class="fieldDescription">Must match the application registration exactly. This is not a secret.</div>
+            </div>
+          </details>
+        </section>
+
+        <section id="tab-native-sources" class="tab-content" style="display:none">
+          <h3 class="sectionTitle">Native sources</h3>
+          <div class="checkboxContainer checkboxContainer-withDescription"><label><input is="emby-checkbox" id="chkEnableNativeScraper" type="checkbox"><span>Enable native YAML scraper</span></label><div class="fieldDescription">Allows enabled public Cardigann definitions to search their declared hosts. Disabled by default.</div></div>
+          <div class="checkboxContainer checkboxContainer-withDescription"><label><input is="emby-checkbox" id="chkEnableNativeAggregation" type="checkbox"><span>Enable result aggregation</span></label><div class="fieldDescription">Normalizes, deduplicates, and ranks results from enabled indexers.</div></div>
+          <div class="inputContainer">
+            <label class="inputLabel" for="txtStreamAddonUrls">Stream addons</label>
+            <textarea class="emby-textarea" id="txtStreamAddonUrls" rows="3" placeholder="https://torrentio.strem.fun"></textarea>
+            <div class="fieldDescription">Optional. Stremio stream addons (Torrentio, Comet, MediaFusion…) asked for a title's releases before the indexer sweep, one base URL per line. They answer from a pre-scraped database in about a second, so playback starts without waiting on indexers when an addon knows the title. Use addon URLs without a debrid key: streams that are already debrid links are ignored.</div>
+          </div>
+          <div class="inputContainer"><label class="inputLabel" for="txtStreamAddonTimeoutSeconds">Stream addon timeout, seconds</label><input class="emby-input" id="txtStreamAddonTimeoutSeconds" type="number" min="1" max="30"><div class="fieldDescription">How long discovery waits for the stream addons before it relies on the indexer sweep alone.</div></div>
+          <div class="inputContainer">
+            <a href="https://github.com/FlareSolverr/FlareSolverr" target="_blank" rel="noopener noreferrer">Open FlareSolverr documentation</a>
+            <label class="inputLabel" for="txtFlareSolverrUrl">FlareSolverr endpoint</label>
+            <input class="emby-input" id="txtFlareSolverrUrl" type="text" placeholder="http://192.168.1.10:8191">
+            <div class="fieldDescription">Optional. Enables indexers marked “requires_flaresolverr.” Enter the IP address and port of your local service; <code>/v1</code> is added automatically. Environment variable <code>NEBULA_BRIDGE_FLARESOLVERR_URL</code> takes precedence.</div>
+          </div>
+          <h3 class="sectionTitle">Debrid providers</h3>
+          <div class="fieldDescription">Only already-cached content is offered; Nebula Bridge never starts an uncached download because someone pressed Play. When several providers hold the same release, the lowest priority number serves it and the others stand by as alternates. Tokens are write-only. Untick a provider to take it out of rotation without discarding its token.</div>
+          <div id="debridProvidersList" class="debridProviders"><div class="fieldDescription">Loading providers…</div></div>
+          <div class="fieldDescription">Environment variables <code>NEBULA_BRIDGE_TORBOX_API_TOKEN</code> and <code>NEBULA_BRIDGE_REALDEBRID_API_TOKEN</code> take precedence over saved tokens. Sign-up links: <a href="https://torbox.app" target="_blank" rel="noopener noreferrer">TorBox</a> · <a href="https://real-debrid.com" target="_blank" rel="noopener noreferrer">Real-Debrid</a> (token under <em>My Account → API token</em>).</div>
+          <div class="fieldDescription" style="margin-bottom:1em"><strong>Affiliate disclosure:</strong> provider links on this administrator page may later be affiliate links that support the project. Provider links are never shown in Astra.</div>
+          <div class="inputContainer"><label class="inputLabel" for="txtNativeResolvedStreamLimit">Maximum native streams</label><input class="emby-input" id="txtNativeResolvedStreamLimit" type="number" min="1" max="20"><div class="fieldDescription">Maximum direct and cached candidates per item, from 1 through 20.</div></div>
+          <h3 class="sectionTitle">Signed Cardigann catalog</h3>
+          <div class="checkboxContainer checkboxContainer-withDescription"><label><input is="emby-checkbox" id="chkEnableRemoteIndexerCatalog" type="checkbox"><span>Update signed indexer definitions daily</span></label><div class="fieldDescription">Transactional updates retain the last-known-good set if validation fails.</div></div>
+          <div class="inputContainer"><label class="inputLabel" for="txtIndexerCatalogManifestUrl">Manifest URL</label><input class="emby-input" id="txtIndexerCatalogManifestUrl" type="url"><div class="fieldDescription">HTTPS is required except for loopback development.</div></div>
+          <details><summary>Manifest trust settings</summary><div class="inputContainer"><label class="inputLabel" for="txtIndexerCatalogPublicKey">ECDSA public key</label><textarea class="emby-textarea" id="txtIndexerCatalogPublicKey" rows="3"></textarea><div class="fieldDescription">Base64 DER P-256 public key used to verify exact manifest bytes.</div></div></details>
+          <button is="emby-button" class="raised emby-button" id="btnUpdateIndexers" type="button">Update indexers</button>
+          <div id="indexerDefinitionStatus" class="fieldDescription" style="margin:.75em 0">No definition status loaded.</div>
+          <div id="nativeIndexerList"></div>
+          <div class="inputContainer"><label class="inputLabel" for="txtNativeTestQuery">Test query</label><input class="emby-input" id="txtNativeTestQuery" value="ubuntu"><div class="fieldDescription">Runs against all enabled definitions; individual source failures remain isolated.</div></div>
+          <button is="emby-button" class="raised emby-button" id="btnNativeTest" type="button">Run test query</button>
+          <pre id="nativeTestOutput" style="white-space:pre-wrap;max-height:24em;overflow:auto"></pre>
+        </section>
+
+        <section id="tab-user-access" class="tab-content" style="display:none">
+          <h3 class="sectionTitle">Nebula Bridge user access</h3>
+          <div class="fieldDescription" style="margin-bottom:1em">Rows are rebuilt from Jellyfin users whenever this page opens. “No Nebula Bridge” hides all bridge-managed libraries through Jellyfin’s native library policy and blocks remote discovery. “Local search only” blocks remote discovery but preserves authorized bridge libraries.</div>
+          <div id="userAccessGrid" style="overflow:auto"></div>
+          <button is="emby-button" class="raised emby-button" id="btnSaveUserAccess" type="button">Save user access</button>
+        </section>
+
+        <section id="tab-advanced" class="tab-content" style="display:none">
+          <h3 class="sectionTitle">Advanced behavior</h3>
+          <div class="checkboxContainer checkboxContainer-withDescription"><label><input is="emby-checkbox" id="chkEnableMixed" type="checkbox"><span>Add remote streams to locally scanned media</span></label><div class="fieldDescription">Useful when a local file is missing or unsuitable. Leave off to keep local libraries strictly local; TorBox offload is mainly useful on shared servers.</div></div>
+          <div class="checkboxContainer checkboxContainer-withDescription"><label><input is="emby-checkbox" id="chkExtendLocalSeriesTrees" type="checkbox"><span>Extend local series with virtual episodes</span></label><div class="fieldDescription">Creates missing season and episode rows for locally scanned shows. Streams remain lazy until playback.</div></div>
+          <div class="checkboxContainer checkboxContainer-withDescription"><label><input is="emby-checkbox" id="chkEnableJavaScriptInjection" type="checkbox"><span>Enable Jellyfin web customization</span></label><div class="fieldDescription">Adds the legacy local-search control when Jellyfin JavaScript Injector is installed.</div></div>
+          <div class="checkboxContainer checkboxContainer-withDescription"><label><input is="emby-checkbox" id="chkLazyImages" type="checkbox"><span>Load images lazily</span></label><div class="fieldDescription">Defers image downloads until first use to reduce storage and initial import work.</div></div>
+          <div class="checkboxContainer checkboxContainer-withDescription"><label><input is="emby-checkbox" id="chkFilterUnreleased" type="checkbox"><span>Hide unreleased items</span></label><div class="fieldDescription">Filters remote results whose known release date is beyond the configured buffer.</div></div>
+          <div class="inputContainer"><label class="inputLabel" for="txtBufferDays">Release buffer days</label><input class="emby-input" id="txtBufferDays" type="number"><div class="fieldDescription">Number of days after release to continue treating an item as unavailable.</div></div>
+          <div class="inputContainer"><label class="inputLabel" for="txtStreamTTL">Stream cache TTL, seconds</label><input class="emby-input" id="txtStreamTTL" type="number"><div class="fieldDescription">How long prepared stream rows are reused before resolution is refreshed.</div></div>
+          <div class="inputContainer"><label class="inputLabel" for="txtDiscoveryDeadlineSeconds">Discovery deadline, seconds</label><input class="emby-input" id="txtDiscoveryDeadlineSeconds" type="number" min="5" max="300"><div class="fieldDescription">How long playback waits for the indexer sweep before playing the best release found so far. Slow indexers keep going in the background and the next play of the title picks up their answer.</div></div>
+          <div class="inputContainer"><label class="inputLabel" for="txtStreamOpenTimeoutSeconds">Stream open timeout, seconds</label><input class="emby-input" id="txtStreamOpenTimeoutSeconds" type="number" min="5" max="120"><div class="fieldDescription">How long the stream proxy waits for a debrid provider to start answering before it fails over to the next provider. Bounds how long a probe or seek can hang on one stalled provider.</div></div>
+          <div class="checkboxContainer checkboxContainer-withDescription"><label>
+            <input is="emby-checkbox" id="chkEnableDiscoveryPrefetch" type="checkbox"><span>Prefetch sources ahead of the viewer</span>
+          </label><div class="fieldDescription">Searches for the next-up episode when a series or season is opened, and for the episodes that follow one that starts playing, so pressing play does not wait on indexers. Runs one search at a time and pauses while anyone is waiting on a live search.</div></div>
+          <div class="inputContainer"><label class="inputLabel" for="txtDiscoveryPrefetchDepth">Prefetch depth</label><input class="emby-input" id="txtDiscoveryPrefetchDepth" type="number" min="1" max="3"><div class="fieldDescription">How many episodes past the one playing are warmed.</div></div>
+          <div class="inputContainer"><label class="inputLabel" for="txtRawSearchLifetimeMinutes">Raw-search lifetime, minutes</label><input class="emby-input" id="txtRawSearchLifetimeMinutes" type="number" min="5" max="10080"><div class="fieldDescription">How long temporary native indexer search results and their cached candidates remain available. Allowed range: 5 minutes to 7 days.</div></div>
+          <div class="inputContainer"><label class="inputLabel" for="txtDiscoveryLifetimeDays">Discovery lifetime, days</label><input class="emby-input" id="txtDiscoveryLifetimeDays" type="number" min="1" max="365"><div class="fieldDescription">How long untouched ordinary discovery items remain in Search Results. Played, favorited, or resumed items are retained through promotion.</div></div>
+          <h3 class="sectionTitle">Dedicated logging</h3>
+          <div class="checkboxContainer checkboxContainer-withDescription"><label><input is="emby-checkbox" id="chkEnableDedicatedLog" type="checkbox"><span>Write a dedicated Nebula Bridge log</span></label><div class="fieldDescription">Writes redacted, daily rolling operational telemetry to Jellyfin's log directory. Fourteen daily files are retained.</div></div>
+          <div class="selectContainer"><label class="selectLabel" for="selDedicatedLogVerbosity">Nebula log verbosity</label><select is="emby-select" id="selDedicatedLogVerbosity"><option value="0">Information</option><option value="1">Debug</option><option value="2">Trace</option></select><div class="fieldDescription">Information is recommended. Debug and Trace add source/cache diagnostics without exposing provider URLs or credentials.</div></div>
+          <div class="inputContainer"><label class="inputLabel" for="txtFFmpegAnalyzeDuration">FFmpeg analyzeduration</label><input class="emby-input" id="txtFFmpegAnalyzeDuration" type="text"><div class="fieldDescription">Probe analysis duration; default <code>5M</code>. Requires a Jellyfin restart after changes.</div></div>
+          <div class="inputContainer"><label class="inputLabel" for="txtFFmpegProbeSize">FFmpeg probesize</label><input class="emby-input" id="txtFFmpegProbeSize" type="text"><div class="fieldDescription">Maximum probe bytes; default <code>40M</code>. Requires a Jellyfin restart after changes.</div></div>
+        </section>
+
+        <button id="btnSave" is="emby-button" type="submit" class="raised button-submit block emby-button" style="margin-top:2em">Save configuration</button>
+      </form>
+    </div></div>
+  </div>
+
+</body>
+</html>

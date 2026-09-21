@@ -1,0 +1,21 @@
+services:
+  indexer-registry:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "0.0.0.0:5050:5050"
+    environment:
+      NEBULA_ADMIN_USERNAME: ${NEBULA_ADMIN_USERNAME:?set NEBULA_ADMIN_USERNAME}
+      NEBULA_ADMIN_PASSWORD_FILE: /run/secrets/admin-password
+      NEBULA_BOOTSTRAP_APPROVED_IDS: ${NEBULA_BOOTSTRAP_APPROVED_IDS:-}
+      NEBULA_CATALOG_DATA: /data
+      NEBULA_MANIFEST_SIGNING_KEY: /run/secrets/manifest-signing-key.pem
+    volumes:
+      - ./data:/data
+      - ./secrets/manifest-signing-key.pem:/run/secrets/manifest-signing-key.pem:ro
+      - ./secrets/admin-password:/run/secrets/admin-password:ro
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:5050/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3

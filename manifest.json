@@ -1,0 +1,32 @@
+[
+  {
+    "guid": "e9d7c793-aee0-49b6-82c1-8ad583453663",
+    "name": "Nebula Bridge",
+    "description": "A Jellyfin plugin that creates self-updating libraries from Trakt & TMDB, searches public indexers natively, and resolves playback through debrid caching - TorBox today, with Real-Debrid, AllDebrid, Premiumize and more in progress. Family-friendly access controls included. GPL-3.0.",
+    "overview": "Virtual debrid-backed libraries for Jellyfin.",
+    "owner": "AmbientFlare",
+    "category": "General",
+    "versions": [
+      {
+        "version": "12.4.2.1",
+        "changelog": "Nebula Bridge 12.4.2.1.",
+        "targetAbi": "12.0.0.0",
+        "sourceUrl": "https://raw.githubusercontent.com/AmbientFlare/Nebula-Bridge/main/dist/12.4.2.1/nebula-bridge_12.4.2.1.zip",
+        "checksum": "D6FF01C3F334033B245E85D77A094EC8",
+        "repositoryUrl": "https://github.com/AmbientFlare/Nebula-Bridge",
+        "repositoryName": "AmbientFlare",
+        "timestamp": "2026-09-21T21:57:53Z"
+      },
+      {
+        "version": "0.4.2.1",
+        "changelog": "Nebula Bridge 0.4.2.1.",
+        "targetAbi": "10.11.11.0",
+        "sourceUrl": "https://raw.githubusercontent.com/AmbientFlare/Nebula-Bridge/main/dist/0.4.2.1/nebula-bridge_0.4.2.1.zip",
+        "checksum": "158A659C5E94828F7987F75B7602CD8D",
+        "repositoryUrl": "https://github.com/AmbientFlare/Nebula-Bridge",
+        "repositoryName": "AmbientFlare",
+        "timestamp": "2026-09-21T21:57:53Z"
+      }
+    ]
+  }
+]

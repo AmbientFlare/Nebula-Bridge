@@ -1,0 +1,18 @@
+id: registry-acceptance
+name: Registry acceptance fixture
+description: Temporary definition for add and remove acceptance testing.
+type: public
+requestDelaySeconds: 0
+baseUrls:
+  - https://example.com/
+search:
+  path: search
+  query:
+    q: "{{query}}"
+  rows: .result
+  fields:
+    title:
+      selector: .title
+    download:
+      selector: .download
+      attribute: href
