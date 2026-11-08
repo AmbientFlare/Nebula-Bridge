@@ -1,0 +1,7 @@
+* text=auto eol=lf
+*.png -text
+*.jpg -text
+*.ico -text
+*.zip -text
+dist/** -text
+Assets/** -text
